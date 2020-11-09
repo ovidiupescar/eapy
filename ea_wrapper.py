@@ -30,10 +30,39 @@ def eaCollection(C):
     else:
         raise TypeError
 
-    
+def getElementByGUID(guid):
+    return eaRep.GetElementByGuid(guid)
+
+def removeConnections(element):
+    """ Removes all connections to this element """
+    while element.Connectors.Count:
+        element.Connectors.DeleteAt(0, True)
+        element.Update()
+        element.Refresh()
+
+    if element.Connectors.Count == 0:
+        print(element.Name + " -> Success: Connectors deleted")
+    else:
+        print(element.Name + " -> Error: Connectors not deleted")
+
+def addConnection(source, target):
+    """ Connects a source element (Requirement) to a target element (Design) """
+    connection = source.Connectors.AddNew("", "Dependency")
+    connection.SupplierID = target.ElementID
+    connection.Direction = "Source -> Destination"
+    connection.Update()
+    source.Connectors.Refresh()
+    target.Connectors.Refresh()
+
+    if connection.IsConnectorValid():
+        print("Success: Connection created: " + source.Name + " -> " + target.Name)
+    else:
+        print("Error: Connection failed: " + source.Name + " -> " + target.Name)
 
 def parseElement(currentElement, indent):
     print(indent + currentElement.Name + " " + currentElement.Stereotype)
+    
+    addConnection(currentElement, getElementByGUID("{479F7F71-0EAF-4285-A5F7-4437BCC41AA9}"))
 
     if currentElement.Elements.Count > 0:
         for element in eaCollection(currentElement.Elements):
@@ -63,7 +92,11 @@ def parseItem(currentItem):
 eaApp = EA_connect()
 eaRep = eaApp.Repository
 
-parseItem(eaRep.GetTreeSelectedObject())
+guid = "{219C6461-CE79-4f57-98FF-BE652608F8F6}"
+
+removeConnections(getElementByGUID(guid))
+
+#parseItem(eaRep.GetTreeSelectedObject())
 
 """
 for package in eaRep.Models:
