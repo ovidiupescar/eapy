@@ -1,6 +1,9 @@
+from typing import Type
 import win32com.client
 import sys
 from object_types import *
+import pandas as pd
+import time
 
 #path to req
 
@@ -45,9 +48,9 @@ def removeConnections(element):
     else:
         print(element.Name + " -> Error: Connectors not deleted")
 
-def addConnection(source, target):
+def addConnection(source, target, con_type):
     """ Connects a source element (Requirement) to a target element (Design) """
-    connection = source.Connectors.AddNew("", "Dependency")
+    connection = source.Connectors.AddNew("", con_type)
     connection.SupplierID = target.ElementID
     connection.Direction = "Source -> Destination"
     connection.Update()
@@ -59,14 +62,25 @@ def addConnection(source, target):
     else:
         print("Error: Connection failed: " + source.Name + " -> " + target.Name)
 
-def parseElement(currentElement, indent):
-    print(indent + currentElement.Name + " " + currentElement.Stereotype)
-    
-    addConnection(currentElement, getElementByGUID("{479F7F71-0EAF-4285-A5F7-4437BCC41AA9}"))
+def detelePorts(currentElement):
+    if currentElement.Type == "Component":
+        if currentElement.EmbeddedElements.Count > 0:
+            for i in range(0, currentElement.EmbeddedElements.Count):
+                #eaCollection(currentElement.EmbeddedElements):
+                currentElement.EmbeddedElements.Delete(i)
+    currentElement.EmbeddedElements.Refresh()
 
-    if currentElement.Elements.Count > 0:
-        for element in eaCollection(currentElement.Elements):
-            parseElement(element, indent+" ")
+def parseElement(currentElement, indent):
+    global components
+    print(indent + currentElement.Name + " Stereotype: " + currentElement.Stereotype + " Type: " + currentElement.Type)
+    #components.append([currentElement.Name, currentElement.Type, currentElement.ElementGUID])
+    components["Name"].append(currentElement.Name)
+    components["Type"].append(currentElement.Type)
+    components["GUID"].append(currentElement.ElementGUID)
+    
+    """To delete ports, uncomment bellow"""
+    #deletePorts(currentElement)
+    
 
 def parsePackage(currentPackage, indent):
     print(indent + currentPackage.Name + " Package")
@@ -88,21 +102,60 @@ def parseItem(currentItem):
         print("Selection must be element or package.")
 
 
+def main():
+    eaApp = EA_connect()
+    eaRep = eaApp.Repository
 
+    #guid = "{219C6461-CE79-4f57-98FF-BE652608F8F6}"
+
+    #removeConnections(getElementByGUID(guid))
+    global components
+    components["Name"] = []
+    components["Type"] = []
+    components["GUID"] = []
+
+    parseItem(eaRep.GetTreeSelectedObject())
+
+    df = pd.DataFrame(components)
+    print(df)
+
+    """
+    for package in eaRep.Models:
+        parseItem(package)
+
+    print(otCollection)
+    """
+
+def add_port(component, pname, ptype, pstereotype):
+    new_port = component.EmbeddedElements.AddNew(pname, ptype)
+    new_port.Stereotype = pstereotype
+    new_port.Update()
+    component.EmbeddedElements.Refresh()
+    return new_port
+
+def add_interface(p, r, p_type, r_type):
+    pass
+
+def add_ports():
+    component = getElementByGUID("{DD5CB9B7-DFA5-49f0-A993-8EAB5EE4D4EA}")
+    #add_port(component, "test", "RequiredInterface", "Receiver")
+    port = getElementByGUID("{82A5764D-5D38-4533-83AF-7A4954A8E712}")
+    
+    new_sender = add_port(component, "primeste_iar", "ProvidedInterface", "Sender")
+    new_receiver = add_port(component, "trimite_iar", "RequiredInterface", "Receiver")
+    addConnection(new_sender, new_receiver, "dependency")
+
+    #print(f"Object: {new_port.ObjectType}, Name: {new_port.Name}, GUID: {new_port.ElementGUID}")
+    #print(f"Object: {component.Name}")
+
+
+components = {}
+start = time.time()
 eaApp = EA_connect()
 eaRep = eaApp.Repository
-
-guid = "{219C6461-CE79-4f57-98FF-BE652608F8F6}"
-
-removeConnections(getElementByGUID(guid))
-
-#parseItem(eaRep.GetTreeSelectedObject())
-
-"""
-for package in eaRep.Models:
-    parseItem(package)
-
-print(otCollection)
-"""
+thePackage = eaRep.GetTreeSelectedPackage()
+add_ports()
+end = time.time()
+print("Duration: {}s".format(end-start))
 
 
