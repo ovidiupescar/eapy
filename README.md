@@ -16,7 +16,7 @@ Python script that takes a requirement, sends it to Chat GPT and fills in the te
 	
 2. Select a requirement with the mouse. The element must be of "Requirement" type
 
-![image](/assets/req_example.jpg)
+![image](assets/req_example.jpg)
 
 3. Run the script by calling:
    ```
@@ -26,6 +26,6 @@ Python script that takes a requirement, sends it to Chat GPT and fills in the te
 
 4. After `FINISHED!` is displayed in terminal, check the EA Requirements to see the testcases:
 
-![image](/assets/testcase_example.jpg)
+![image](assets/testcase_example.jpg)
 
 # Enjoy!

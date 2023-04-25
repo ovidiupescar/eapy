@@ -1,0 +1,35 @@
+<h1>Generates testcases from requirements using ChatGPT.</h1>
+<p>Python script that takes a requirement, sends it to Chat GPT and fills in the testcases returned by ChatGPT.</p>
+<h2>Configuration:</h2>
+<ul>
+<li>modify <code>API_KEY</code> in <code>req_to_testcase_gpt.py</code>. Mine is there, if you don't have one yet... so please don't spam it :)</li>
+<li>you can play in the script in the <code>chat_gpt</code> function with the <code>model</code> and <code>temperature</code> parameters to see what you obtain...</li>
+</ul>
+<h2>Preconditions:</h2>
+<ul>
+<li>Python (&gt;3.7) installed</li>
+<li>Enterprise Architect installed</li>
+<li>Python dependecies installed (run <code>pip install -r requirements.txt</code> in the script folder)</li>
+</ul>
+<h2>Steps to run:</h2>
+<ol>
+<li>
+<p>Open EA.</p>
+</li>
+<li>
+<p>Select a requirement with the mouse. The element must be of "Requirement" type</p>
+</li>
+</ol>
+<p><img alt="image" src="assets/req_example.jpg" /></p>
+<ol>
+<li>
+<p>Run the script by calling:
+   <code>python req_to_testcase_gpt.py</code>
+   Or run it in your favourite IDE (I use Visual Studio Code)</p>
+</li>
+<li>
+<p>After <code>FINISHED!</code> is displayed in terminal, check the EA Requirements to see the testcases:</p>
+</li>
+</ol>
+<p><img alt="image" src="assets/testcase_example.jpg" /></p>
+<h1>Enjoy!</h1>
