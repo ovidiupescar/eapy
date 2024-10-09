@@ -2,7 +2,7 @@ import win32com.client
 import sys
 import openai
 
-API_KEY = "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"
+API_KEY = ""
 
 def chat_gpt(prompt):
     """
